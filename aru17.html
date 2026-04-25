@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loki's Masterpiece for Aru</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: #02020a; color: #fff;
+            overflow: hidden; height: 100vh;
+        }
+
+        /* --- Background --- */
+        .sky {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a1a3a 0%, #02020a 100%);
+            z-index: -1;
+        }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--d) infinite ease-in-out; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        /* --- Animations --- */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        
+        @keyframes appleIn {
+            0% { transform: scale(0); opacity: 0; filter: drop-shadow(0 0 0px #ffd700) blur(10px); }
+            40% { transform: scale(0.1); opacity: 0.5; filter: drop-shadow(0 0 50px #ffd700) blur(0); }
+            100% { transform: scale(1.4); opacity: 1; filter: drop-shadow(0 0 35px #ffd700); }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Animasi Baru untuk Foto di Chest */
+        .fade-in-photo { opacity: 0; transform: translateY(20px); transition: all 0.8s ease-out; }
+        .fade-in-photo.visible { opacity: 1; transform: translateY(0); }
+
+        /* --- Landing --- */
+        #landing { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; animation: fadeIn 2s ease-in; }
+        .crafting-icon { margin-bottom: 30px; animation: float 4s infinite ease-in-out; }
+        .btn-enter {
+            font-family: 'Press Start 2P', cursive; padding: 20px 40px;
+            background: rgba(255,255,255,0.1); color: #fff; border: 4px solid #fff;
+            cursor: pointer; box-shadow: 8px 8px 0 #000; transition: 0.3s;
+            backdrop-filter: blur(5px); animation: float 4s infinite ease-in-out;
+        }
+
+        /* --- Main Scene --- */
+        #mainBase { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; padding: 40px 20px; opacity: 0; transition: 1.5s; }
+        #contentWrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; width: 100%; }
+
+        /* Inventory */
+        .inventory { display: flex; gap: 40px; margin-bottom: 50px; transition: 0.8s ease; flex-wrap: wrap; justify-content: center; }
+        .slot { text-align: center; cursor: pointer; animation: float 3s infinite ease-in-out; }
+        .slot img { width: 100px; filter: drop-shadow(6px 6px 0 #000); }
+        .slot-name { font-size: 0.5rem; color: #ffd700; margin-top: 15px; text-shadow: 2px 2px 0 #000; }
+
+        /* Golden Apple & Reset Button */
+        #trophyArea { display: none; text-align: center; z-index: 50; }
+        .apple-btn { width: 160px; cursor: pointer; }
+        .apple-btn.small { width: 100px !important; filter: drop-shadow(0 0 10px #ffd700) !important; }
+        
+        /* Teks Label Apple disesuaikan: Lebih besar dan lebih bawah */
+        #appleLabel { font-size: 0.7rem; color: #ffd700; margin-top: 45px; letter-spacing: 2px; }
+        
+        #onceAgain { 
+            display: none; margin: 20px 0; font-size: 0.5rem; 
+            color: #aaa; text-decoration: underline; cursor: pointer; 
+            animation: fadeIn 1s; 
+        }
+        #onceAgain:hover { color: #fff; }
+
+        /* Timer */
+        #timer { font-size: 1.6rem; color: #fff; text-shadow: 4px 4px 0 #000; margin-top: 10px; text-align: center; }
+
+        /* --- Modals --- */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center;
+            align-items: center; backdrop-filter: blur(10px); animation: fadeIn 0.4s;
+        }
+        .mc-frame {
+            background: #c6c6c6; border: 4px solid #000; padding: 25px;
+            width: 90%; max-width: 500px; color: #333;
+            box-shadow: inset -6px -6px #555, inset 6px 6px #fff;
+            display: flex; flex-direction: column; max-height: 85vh;
+        }
+
+        .scroll-area {
+            overflow-y: auto; padding-right: 5px; flex-grow: 1;
+            scrollbar-width: thin; scrollbar-color: #3c3c3c #c6c6c6;
+        }
+        .scroll-area::-webkit-scrollbar { width: 10px; }
+        .scroll-area::-webkit-scrollbar-track { background: #c6c6c6; }
+        .scroll-area::-webkit-scrollbar-thumb { background: #3c3c3c; border: 2px solid #c6c6c6; }
+
+        .torch-content { display: flex; gap: 15px; align-items: flex-start; }
+        .torch-text-wrapper { flex: 1; font-size: 0.45rem; line-height: 1.6; }
+
+        .chest-header { font-size: 0.7rem; text-align: center; color: #111; margin-bottom: 25px; line-height: 1.4; }
+
+        .painting-box { border: 6px solid #382b1d; background: #000; margin-bottom: 20px; width: 100%; flex-shrink: 0; }
+        .painting-box img { width: 100%; display: block; }
+        .photo-caption { background: rgba(0,0,0,0.9); color: #fff; font-size: 0.45rem; padding: 10px; text-align: center; }
+
+        .letter-content-box { background: #f4e4bc; padding: 20px; border: 4px solid #8b4513; margin-top: 10px; }
+        .letter-text { font-family: 'Press Start 2P', cursive; font-size: 0.4rem; line-height: 1.8; color: #2c1810; }
+
+        .close-btn { 
+            width: 100%; margin-top: 15px; padding: 15px; 
+            background: #3c3c3c; color: #fff; font-family: 'Press Start 2P'; 
+            font-size: 0.6rem; border: 4px solid #000; cursor: pointer; flex-shrink: 0;
+        }
+
+        #achieveToast {
+            position: fixed; top: 20px; right: -450px;
+            background: #222; border: 4px solid #000; padding: 15px;
+            width: 350px; z-index: 2000; transition: 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        #achieveToast.show { right: 20px; }
+
+        @media (max-width: 600px) {
+            #timer { font-size: 1.1rem; }
+            .slot img { width: 80px; }
+            .torch-content { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sky" id="sky"></div>
+
+    <div id="achieveToast">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="https://minecraft.wiki/images/Diamond_JE3_BE3.png" width="45">
+            <div>
+                <p style="color: #ffff55; font-size: 0.5rem; margin-bottom: 5px;">Achievement Unlocked!</p>
+                <p style="font-size: 0.4rem;">The Most Precious Companion</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="landing">
+        <div class="crafting-icon">
+            <img src="https://minecraft.wiki/images/Crafting_Table_JE4_BE3.png" width="120" alt="Crafting Table">
+        </div>
+        <h1 style="font-size: 0.7rem; margin-bottom: 30px; text-align: center;">LOKI'S SECRET BASE</h1>
+        <button class="btn-enter" onclick="enterBase()">ENTER BASE</button>
+    </div>
+
+    <div id="mainBase">
+        <div id="contentWrapper">
+            <div class="inventory" id="invContainer">
+                <div class="slot" onclick="openMod('torchModal')"><img src="https://minecraft.wiki/images/Torch_JE2_BE2.gif"><p class="slot-name">Torch</p></div>
+                <div class="slot" onclick="openMod('chestModal')"><img src="https://minecraft.wiki/images/Chest_JE4_BE2.gif"><p class="slot-name">Chest</p></div>
+                <div class="slot" onclick="openMod('bookModal')"><img src="https://minecraft.wiki/images/Book_and_Quill_JE2_BE2.png"><p class="slot-name">Letter</p></div>
+            </div>
+
+            <div id="trophyArea">
+                <img src="https://minecraft.wiki/images/Golden_Apple_JE2_BE2.png" class="apple-btn" id="appleMain" onclick="showCert()">
+                <p id="appleLabel" style="text-align: center;"></p>
+            </div>
+            
+            <div id="onceAgain" onclick="location.reload()">Once Again</div>
+        </div>
+
+        <div class="big-timer" id="timerBox">
+            <div style="font-size: 0.6rem; color: #ffd700; text-align: center;">OUR TIME WORLD</div>
+            <div id="timer">00d : 00h : 00m : 00s</div>
+        </div>
+    </div>
+
+    <div class="modal" id="torchModal">
+        <div class="mc-frame">
+            <div class="torch-content">
+                <img src="https://i.pinimg.com/736x/d2/4a/df/d24adfab5746601e8e62e9b3b52dfd70.jpg" style="width: 80px; height: 80px; border: 4px solid #000; object-fit: cover; flex-shrink: 0;">
+                <div class="torch-text-wrapper">
+                    <p style="color: #ff5555; margin-bottom: 8px;">Loki:</p>
+                    <div class="scroll-area" style="max-height: 200px;">
+                        <p id="speech" style="color: #333;"></p>
+                    </div>
+                </div>
+            </div>
+            <button class="close-btn" onclick="closeMod('torchModal')">CONTINUE</button>
+        </div>
+    </div>
+
+    <div class="modal" id="chestModal">
+        <div class="mc-frame">
+            <div class="scroll-area" id="chestScroll">
+                <p class="chest-header">Just a few frames of us.<br>Each one is a memory I'd keep forever.</p>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/a8/bd/0a/a8bd0ad1a1e11970817cc3a0622e82e5.jpg"><div class="photo-caption">The most beautiful boy I've ever seen, Aru.</div></div>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/c1/be/00/c1be00dd84c236be3ef97d0aece27b43.jpg"></div>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/c4/a6/8e/c4a68ea17995b4e524f88f2a62d2c6fa.jpg"></div>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/49/b3/bf/49b3bf8ea2dff02a749ba492e265e79c.jpg"><div class="photo-caption">This is me, Loki.</div></div>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/92/8b/b3/928bb3e7860f136c23d71b18b55a4239.jpg"></div>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/f7/f8/6f/f7f86f705ebedf967ce8b1133abe58a0.jpg"></div>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/7a/fe/a2/7afea2d3ce1a55da1d304262715db876.jpg"></div>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/17/f9/b9/17f9b91f465e129ee48d88eb892e00d7.jpg"></div>
+                <div class="painting-box fade-in-photo"><img src="https://i.pinimg.com/736x/c6/10/0d/c6100d62451ff3ae3ff6f428e50a724a.jpg"></div>
+            </div>
+            <button class="close-btn" onclick="closeMod('chestModal')">CLOSE</button>
+        </div>
+    </div>
+
+    <div class="modal" id="bookModal">
+        <div class="mc-frame">
+            <div class="scroll-area">
+                <div class="painting-box"><img src="https://i.pinimg.com/736x/df/e3/37/dfe33734b3b3c63fd7f0ebf19469878f.jpg"></div>
+                <div class="letter-content-box">
+                    <div class="letter-text" id="letterContent"></div>
+                </div>
+            </div>
+            <button class="close-btn" onclick="finishLetter()">DONE</button>
+        </div>
+    </div>
+
+    <div class="modal" id="certModal">
+        <div class="mc-frame" style="background: #222; border: 4px solid #ffd700; align-items: center; justify-content: center; min-height: 400px;">
+            <img src="https://minecraft.wiki/images/Diamond_JE3_BE3.png" width="80" style="margin-bottom: 25px;">
+            <p style="color: #ffff55; font-size: 0.8rem; margin-bottom: 35px; text-align: center; letter-spacing: 2px;">ACHIEVEMENT UNLOCKED!</p>
+            <p style="font-size: 0.55rem; color: #fff; line-height: 2.2; text-align: center;">THE MOST PRECIOUS COMPANION<br><br>Awarded to:<br><span style="color: #55ff55; font-size: 0.7rem;">KAORU WIYAKSHA</span></p>
+            <button class="close-btn" style="background: #555; margin-top: 30px;" onclick="finalDone()">DONE</button>
+        </div>
+    </div>
+
+    <script>
+        const sky = document.getElementById('sky');
+        for(let i=0; i<80; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.width = s.style.height = Math.random()*3+'px';
+            s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+            s.style.setProperty('--d', (Math.random()*3+2)+'s');
+            sky.appendChild(s);
+        }
+
+        let visited = new Set();
+        let achieved = false;
+        
+        const letterFullText = `Dear Aru,\n\nI was looking at the stars in our little secret base and realized how lucky I am to have you around. We didn’t start this with a map or a clear destination, but honestly? I’m enjoying every step of the journey.\n\nBeing with you is like finding a rare biome—it’s peaceful, it’s beautiful, and it feels like home. There's no pressure to be anything other than ourselves. You’re the person I can talk to for hours or just sit with in total silence, and both feel just as perfect.\n\nThank you for the laughs, the random talks, and for being the most precious companion I could ask for. I don’t know where the game leads us next, but as long as you're my 'player two', I'm all in.\n\nStay as wonderful as you are, Aru.\n\nWith Love, Loki Nilfheim`;
+
+        const torchFullText = `I really enjoy every second I spend with you. No pressure, just us being comfortable with each other. That’s what makes this special. You're like a torch in a dark cave—always making things brighter and easier to navigate. I'm glad we found this spot together.`;
+
+        function enterBase() {
+            document.getElementById('landing').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('landing').style.display = 'none';
+                const main = document.getElementById('mainBase');
+                main.style.display = 'flex';
+                setTimeout(() => main.style.opacity = '1', 50);
+            }, 1000);
+        }
+
+        function openMod(id) {
+            const mod = document.getElementById(id);
+            mod.style.display = 'flex';
+            if(id === 'torchModal') typeText(torchFullText, "speech", 30);
+            if(id === 'bookModal') typeText(letterFullText, "letterContent", 20);
+            if(id === 'chestModal') {
+                document.getElementById('chestScroll').scrollTop = 0;
+                checkPhotoVisibility();
+            }
+            visited.add(id);
+        }
+
+        function closeMod(id) { document.getElementById(id).style.display = 'none'; }
+
+        document.getElementById('chestScroll').addEventListener('scroll', checkPhotoVisibility);
+
+        function checkPhotoVisibility() {
+            const photos = document.querySelectorAll('.fade-in-photo');
+            const scrollArea = document.getElementById('chestScroll');
+            const triggerBottom = scrollArea.scrollTop + scrollArea.clientHeight * 0.95;
+
+            photos.forEach(photo => {
+                const photoTop = photo.offsetTop;
+                if (photoTop < triggerBottom) {
+                    photo.classList.add('visible');
+                }
+            });
+        }
+
+        function finishLetter() {
+            closeMod('bookModal');
+            if(visited.size >= 3 && !achieved) {
+                document.getElementById('invContainer').style.opacity = '0';
+                document.getElementById('timerBox').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('invContainer').style.display = 'none';
+                    document.getElementById('achieveToast').classList.add('show');
+                    setTimeout(() => {
+                        document.getElementById('achieveToast').classList.remove('show');
+                        const trophy = document.getElementById('trophyArea');
+                        trophy.style.display = 'block';
+                        const apple = document.getElementById('appleMain');
+                        apple.style.animation = 'appleIn 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+                        document.getElementById('appleLabel').innerText = "CLAIM ACHIEVEMENT";
+                    }, 3500);
+                }, 800);
+            }
+        }
+
+        function showCert() { document.getElementById('certModal').style.display = 'flex'; }
+
+        function finalDone() {
+            closeMod('certModal');
+            if(!achieved) {
+                achieved = true;
+                const apple = document.getElementById('appleMain');
+                apple.style.animation = 'float 3s infinite ease-in-out';
+                apple.classList.add('small');
+                document.getElementById('invContainer').style.display = 'flex';
+                document.getElementById('timerBox').style.opacity = '1';
+                document.getElementById('onceAgain').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('invContainer').style.opacity = '1';
+                    document.getElementById('appleLabel').innerText = "VIEW ACHIEVEMENT";
+                }, 100);
+            }
+        }
+
+        function typeText(text, elementId, speed) {
+            let i = 0; const target = document.getElementById(elementId);
+            target.innerHTML = "";
+            function type() {
+                if (i < text.length) {
+                    target.innerHTML += text.charAt(i) === "\n" ? "<br>" : text.charAt(i);
+                    i++; 
+                    const area = target.closest('.scroll-area');
+                    if(area) area.scrollTop = area.scrollHeight; 
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        function updateTimer() {
+            const start = new Date('2026-03-17T06:45:00');
+            const now = new Date();
+            const diff = now - start;
+            const d = Math.floor(diff / (1000*60*60*24));
+            const h = Math.floor((diff / (1000*60*60)) % 24);
+            const m = Math.floor((diff / 1000 / 60) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            document.getElementById('timer').innerText = `${d}d : ${h.toString().padStart(2,'0')}h : ${m.toString().padStart(2,'0')}m : ${s.toString().padStart(2,'0')}s`;
+        }
+        setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>
